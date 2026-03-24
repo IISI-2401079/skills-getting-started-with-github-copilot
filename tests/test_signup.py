@@ -31,3 +31,22 @@ def test_signup_rejects_duplicate_registration():
         "detail": "Student is already signed up for this activity"
     }
     assert activities[activity_name]["participants"].count(email) == 1
+
+
+def test_unregister_removes_existing_participant():
+    activity_name = "Chess Club"
+    email = "remove-me@mergington.edu"
+
+    if email not in activities[activity_name]["participants"]:
+        activities[activity_name]["participants"].append(email)
+
+    response = client.delete(
+        f"/activities/{activity_name}/signup",
+        params={"email": email},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "message": f"Removed {email} from {activity_name}"
+    }
+    assert email not in activities[activity_name]["participants"]
